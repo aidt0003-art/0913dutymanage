@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>청소당번 뽑기</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background: white;
+      border-radius: 24px;
+      padding: 40px 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      color: #333;
+      font-size: 32px;
+    }
+
+    .description {
+      color: #777;
+      margin-bottom: 30px;
+    }
+
+    .info {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .info-box {
+      background: #f5f5f5;
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: #555;
+    }
+
+    .info-box strong {
+      color: #667eea;
+      font-size: 20px;
+    }
+
+    #drawButton {
+      border: none;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 16px 40px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+    }
+
+    #drawButton:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(102, 126, 234, 0.45);
+    }
+
+    #drawButton:active {
+      transform: scale(0.97);
+    }
+
+    .result-title {
+      margin: 35px 0 20px;
+      font-size: 22px;
+      color: #333;
+    }
+
+    .result {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .student {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+      border-radius: 16px;
+      padding: 20px 10px;
+      font-size: 22px;
+      font-weight: bold;
+      animation: pop 0.4s ease forwards;
+      opacity: 0;
+      transform: scale(0.5);
+    }
+
+    .student span {
+      display: block;
+      font-size: 13px;
+      margin-top: 5px;
+      opacity: 0.9;
+    }
+
+    @keyframes pop {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      color: #aaa;
+      padding: 30px;
+      background: #f8f8f8;
+      border-radius: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .result {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .student:last-child {
+        grid-column: 1 / -1;
+      }
+
+      #drawButton {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>🧹 청소당번 뽑기</h1>
+
+    <p class="description">
+      1번부터 30번 학생 중 청소당번 5명을 랜덤으로 뽑습니다.
+    </p>
+
+    <div class="info">
+      <div class="info-box">
+        전체 학생 <strong>30</strong>명
+      </div>
+
+      <div class="info-box">
+        뽑는 인원 <strong>5</strong>명
+      </div>
+    </div>
+
+    <button id="drawButton">
+      🎲 청소당번 뽑기
+    </button>
+
+    <h2 class="result-title">🏆 오늘의 청소당번</h2>
+
+    <div id="result" class="result">
+      <div class="empty">
+        버튼을 눌러 청소당번을 뽑아주세요!
+      </div>
+    </div>
+
+  </div>
+
+
+  <script>
+    const drawButton = document.getElementById("drawButton");
+    const result = document.getElementById("result");
+
+    // 1~30번 학생 중 랜덤으로 5명 뽑기
+    function drawStudents() {
+
+      // 1~30번 학생 배열 만들기
+      const students = Array.from(
+        { length: 30 },
+        (_, index) => index + 1
+      );
+
+      // Fisher-Yates 셔플
+      for (let i = students.length - 1; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+
+        [students[i], students[randomIndex]] =
+          [students[randomIndex], students[i]];
+      }
+
+      // 앞에서 5명 선택
+      return students.slice(0, 5);
+    }
+
+    drawButton.addEventListener("click", () => {
+
+      const selectedStudents = drawStudents();
+
+      // 결과 초기화
+      result.innerHTML = "";
+
+      // 번호순으로 표시하고 싶다면 정렬
+      selectedStudents.sort((a, b) => a - b);
+
+      selectedStudents.forEach((studentNumber, index) => {
+
+        const student = document.createElement("div");
+
+        student.className = "student";
+
+        // 각각 약간의 시간차를 두고 등장
+        student.style.animationDelay = `${index * 0.1}s`;
+
+        student.innerHTML = `
+          ${studentNumber}번
+          <span>청소당번</span>
+        `;
+
+        result.appendChild(student);
+      });
+    });
+  </script>
+
+</body>
+</html>
